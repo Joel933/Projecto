@@ -1,0 +1,301 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Teste Psicotecnico{% endblock %}</title>
+    {% block extra_css %}{% endblock %}
+  <style>
+    /* Importação de Font Awesome para ícones */
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css');
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Nunito', Arial, sans-serif;
+    }
+
+    :root {
+        --primary-color: #0056b3;
+        --primary-dark: #004494;
+        --primary-light: #e6f2ff;
+        --accent-color: #00a8ff;
+        --text-light: #ffffff;
+        --text-dark: #333333;
+        --shadow: 0 4px 6px rgba(0,0,0,0.1);
+        --transition: all 0.3s ease;
+    }
+
+    body {
+        min-height: 100vh;
+        background-color: #f5f7fa;
+    }
+
+    /* Estilos da navbar */
+    .navbar {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: var(--text-light);
+        box-shadow: var(--shadow);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .navbar-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    .navbar-brand {
+        display: flex;
+        align-items: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        text-decoration: none;
+        color: var(--text-light);
+        transition: var(--transition);
+    }
+
+    .navbar-brand i {
+        margin-right: 10px;
+        font-size: 1.8rem;
+    }
+
+    .navbar-brand:hover {
+        transform: scale(1.03);
+    }
+
+    .navbar-links {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .nav-link {
+        color: var(--text-light);
+        text-decoration: none;
+        padding: 0.5rem 0.8rem;
+        border-radius: 4px;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .nav-link-login {
+        background-color: var(--accent-color);
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-weight: 600;
+    }
+
+    .nav-link-logout {
+        color: #ff6b6b;
+    }
+
+    .navbar-toggle {
+        display: none;
+        flex-direction: column;
+        gap: 5px;
+        cursor: pointer;
+        background: none;
+        border: none;
+        z-index: 1001;
+    }
+
+    .bar {
+        width: 25px;
+        height: 3px;
+        background-color: var(--text-light);
+        transition: var(--transition);
+        border-radius: 2px;
+    }
+
+    /* Estilos para usuário logado */
+    .navbar-user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-right: 15px;
+        border-right: 1px solid rgba(255, 255, 255, 0.2);
+        margin-right: 15px;
+    }
+
+    .navbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        background-color: var(--accent-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+
+    .username {
+        font-weight: 600;
+    }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+        .navbar-toggle {
+            display: flex;
+        }
+
+        .navbar-links {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            flex-direction: column;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            align-items: stretch;
+            padding: 1rem;
+            gap: 0.5rem;
+            display: none;
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .navbar-links.active {
+            display: flex;
+        }
+
+        .nav-link {
+            padding: 0.8rem;
+        }
+
+        .navbar-user {
+            border-right: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.8rem 0;
+            margin-right: 0;
+            margin-bottom: 0.8rem;
+            justify-content: center;
+        }
+
+        .navbar-actions {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+    }
+
+    /* Animação para o botão hamburguer */
+    .navbar-toggle.active .bar:nth-child(1) {
+        transform: translateY(8px) rotate(45deg);
+    }
+
+    .navbar-toggle.active .bar:nth-child(2) {
+        opacity: 0;
+    }
+
+    .navbar-toggle.active .bar:nth-child(3) {
+        transform: translateY(-8px) rotate(-45deg);
+    }
+</style>
+</head>
+<body>
+   <nav class="navbar">
+    <div class="navbar-container">
+        <a href="{% url 'home' %}" class="navbar-brand">
+            <i class="fas fa-brain"></i>
+            <span>Teste Psicotécnico</span>
+        </a>
+
+        <button class="navbar-toggle" id="navbar-toggle" aria-label="Menu">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </button>
+
+        <div class="navbar-links" id="navbar-links">
+            {% if user.is_authenticated %}
+                <div class="navbar-user">
+                    <div class="user-avatar">{{ user.username|first|upper }}</div>
+
+                 <a href="{% url 'perfil' %}" class="nav-link">
+                          <span class="username">{{ user.username }}</span>
+                        </a>
+                </div>
+                <div class="navbar-actions">
+                  {% if user.role == 'rh' %}
+    <a href="{% url 'register' %}" class="nav-link">
+        <i class="fas fa-user-plus"></i> Registrar
+    </a>
+{% else %}
+    {% if assignment and assignment.id %}
+        <a href="{% url 'take_test' assignment.id %}" class="nav-link">
+            <i class="fas fa-clipboard-check"></i> Testar
+        </a>
+    {% else %}
+        <a class="nav-link disabled" style="opacity:0.5;pointer-events:none;" title="Nenhum teste disponível">
+            <i class="fas fa-clipboard-check"></i> Testar
+        </a>
+    {% endif %}
+{% endif %}
+                    <a href="{% url 'logout' %}" class="nav-link nav-link-logout">
+                        <i class="fas fa-sign-out-alt"></i> Sair
+                    </a>
+                </div>
+            {% else %}
+                <a href="{% url 'home' %}" class="nav-link">
+                    <i class="fas fa-home"></i> Início
+                </a>
+                <a href="{% url 'login' %}" class="nav-link nav-link-login">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+   
+{% block content %}
+	
+{% endblock %}   
+
+   <!-- JavaScript para o navbar -->
+{% block extra_js %}
+	<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const navbarToggle = document.getElementById('navbar-toggle');
+        const navbarLinks = document.getElementById('navbar-links');
+
+        navbarToggle.addEventListener('click', function() {
+            navbarLinks.classList.toggle('active');
+            navbarToggle.classList.toggle('active');
+        });
+
+        // Fechar menu ao clicar em um link (mobile)
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    navbarLinks.classList.remove('active');
+                    navbarToggle.classList.remove('active');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
+
+</body>
+</html>

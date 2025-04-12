@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Atribuir Teste{% endblock %}
+{% block extra_css %}
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h2>Atribuir Teste</h2>
+                <p class="text-muted">{{ test.title }}</p>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.due_date.id_for_label }}" class="form-label">Data Limite (opcional)</label>
+                        {{ form.due_date }}
+                        <div class="form-text">Deixe em branco se não houver data limite.</div>
+                        {% if form.due_date.errors %}
+                            <div class="text-danger">{{ form.due_date.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.users.label }}</label>
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>Selecione os usuários</span>
+                                    <div>
+                                        <button type="button" class="btn btn-sm btn-outline-primary" id="selectAllCand">Selecionar Candidatos</button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary" id="selectAllColab">Selecionar Colaboradores</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" id="deselectAll">Limpar Seleção</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                                <div class="row">
+                                    {% for user in form.users %}
+                                        <div class="col-md-6 mb-2">
+                                            <div class="form-check">
+                                                {{ user.tag }}
+                                                <label class="form-check-label" for="{{ user.id_for_label }}">
+                                                    {{ user.choice_label }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% if form.users.errors %}
+                            <div class="text-danger">{{ form.users.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'test_detail' test.id %}" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">Atribuir</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectAllCand = document.getElementById('selectAllCand');
+        const selectAllColab = document.getElementById('selectAllColab');
+        const deselectAll = document.getElementById('deselectAll');
+        const checkboxes = document.querySelectorAll('input[name="users"]');
+        
+        selectAllCand.addEventListner('click', function() {
+            checkboxes.forEach(function(checkbox) {
+                const label = checkbox.nextElementSibling.textContent;
+                if (label.includes('(Canditato)')) {
+                    checkbox.checked = true;
+                }
+            });
+        });
+        
+        selectAllColab.addEventListener('click', function() {
+            checkboxes.forEach(function(checkbox) {
+                const label = checkbox.nextElementSibling.textContent;
+                if (label.includes('(Colaborador)')) {
+                    checkbox.checked = true;
+                }
+            });
+        });
+        
+        deselectAll.addEventListener('click', function() {
+            checkboxes.forEach(function(checkbox) {
+                checkbox.checked = false;
+            });
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

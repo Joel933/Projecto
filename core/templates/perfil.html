@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Meu Perfil{% endblock %}
+
+{% block extra_css %}
+<style>
+  .perfil-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  }
+
+  .perfil-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .perfil-foto {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #3498db;
+    margin-right: 1.5rem;
+  }
+
+  .perfil-info h2 {
+    font-size: 1.8rem;
+    color: #2c3e50;
+  }
+
+  .perfil-info p {
+    color: #7f8c8d;
+    margin: 0.25rem 0;
+  }
+
+  .perfil-detalhes {
+    margin-top: 1rem;
+  }
+
+  .perfil-detalhes li {
+    list-style: none;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  .perfil-actions {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.3s;
+  }
+
+  .btn-primary {
+    background-color: #3498db;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background-color: #2980b9;
+  }
+
+  .btn-danger {
+    background-color: #e74c3c;
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background-color: #c0392b;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="perfil-container">
+  <div class="perfil-header">
+    {% if usuario.photo %}
+      <img src="{{ usuario.photo.url }}" alt="Foto de Perfil" class="perfil-foto">
+    {% else %}
+      <img src="{% static 'default-user.png' %}" alt="Sem Foto" class="perfil-foto">
+    {% endif %}
+
+    <div class="perfil-info">
+      <h2>{{ usuario.nome_completo|default:usuario.username }}</h2>
+      <p>{{ usuario.email }}</p>
+      <p><strong>Tipo de Conta:</strong> {{ usuario.get_role_display }}</p>
+    </div>
+  </div>
+
+  <ul class="perfil-detalhes">
+    <li><strong>Nome de Usuário:</strong> {{ usuario.username }}</li>
+    <li><strong>Função:</strong> {{ usuario.funcao }}</li>
+    <li><strong>Bilhete de Identidade:</strong> {{ usuario.bilhete_identidade }}</li>
+    <li><strong>Idade:</strong> {{ usuario.idade }}</li>
+    <li><strong>Gênero:</strong> {{ usuario.get_genero_display }}</li>
+    <li><strong>Morada:</strong> {{ usuario.morada }}</li>
+  </ul>
+
+  <div class="perfil-actions">
+    {% if usuario.role == 'rh' %}
+      <a href="{% url 'test_list' %}" class="btn btn-primary">Gerir Teste</a>
+    {% else %}
+      <a href="{% url 'user_assignments' %}" class="btn btn-primary">Meu teste</a>
+    {% endif %}
+    <a href="{% url 'logout' %}" class="btn btn-danger">Sair</a>
+  </div>
+</div>
+{% endblock %}

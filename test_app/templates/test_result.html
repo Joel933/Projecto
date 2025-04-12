@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load custom_filters %} {# Carrega o filtro dict_get #}
+
+{% block title %}Resultado do Teste{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card mb-4">
+        <div class="card-header {% if result.score >= 70 %}bg-success{% elif result.score >= 50 %}bg-warning{% else %}bg-danger{% endif %} text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>Resultado: {{ test.title }}</h2>
+                <h3>Pontuação: {{ result.score|floatformat:1 }}%</h3>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Informações do Teste</h5>
+                    <p><strong>Candidato:</strong> {{ result.assignment.user.get_full_name|default:result.assignment.user.username }}</p>
+                    <p><strong>Data de início:</strong> {{ result.started_at|date:"d/m/Y H:i" }}</p>
+                    <p><strong>Data de conclusão:</strong> {{ result.completed_at|date:"d/m/Y H:i" }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Pontuação</h5>
+                    <div class="progress mb-2" style="height: 30px;">
+                        <div class="progress-bar {% if result.score < 60 %}bg-danger{% elif result.score < 80 %}bg-warning{% else %}bg-success{% endif %}"
+                             role="progressbar" style="width: {{ result.score }}%;"
+                             aria-valuenow="{{ result.score }}" aria-valuemin="0" aria-valuemax="100">
+                            {{ result.score|floatformat:1 }}%
+                        </div>
+                    </div>
+                    <p><strong>Pontos obtidos:</strong> {{ result.score|floatformat:1 }} de {{ result.max_score }} possíveis</p>
+                </div>
+            </div>
+
+            <h4 class="mb-3">Detalhes das Respostas</h4>
+            {% for question in questions %}
+                {% with answer=answers_dict|dict_get:question.id %}
+                <div class="card mb-3 {% if answer.selected_option == question.correct_option %}border-success{% else %}border-danger{% endif %}">
+                    <div class="card-header {% if answer.selected_option == question.correct_option %}bg-success text-white{% else %}bg-danger text-white{% endif %}">
+                        <div class="d-flex justify-content-between">
+                            <span>Questão {{ forloop.counter }}</span>
+                            <span>{{ question.points }} ponto{{ question.points|pluralize }}</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-3"><strong>{{ question.text }}</strong></p>
+
+                        <ul class="list-group">
+                            {% for option in question.options.all %}
+                            <li class="list-group-item
+                                {% if option.label == question.correct_option %}list-group-item-success{% endif %}
+                                {% if option.label == answer.selected_option and option.label != question.correct_option %}list-group-item-danger{% endif %}">
+                                <div class="d-flex align-items-center">
+                                    {% if option.label == answer.selected_option %}
+                                        <span class="badge bg-primary me-2">Selecionada</span>
+                                    {% endif %}
+                                    {% if option.label == question.correct_option %}
+                                        <span class="badge bg-success me-2">Correta</span>
+                                    {% endif %}
+                                    <span><strong>{{ option.label }}.</strong> {{ option.text }}</span>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endwith %}
+            {% endfor %}
+
+            <div class="mt-4">
+                {% if request.user.role == 'rh' %}
+                    <a href="{% url 'all_test_results' %}" class="btn btn-primary">Voltar para Resultados</a>
+                {% else %}
+                    <a href="{% url 'user_assignments' %}" class="btn btn-primary">Voltar para Meus Testes</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

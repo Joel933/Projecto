@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+{% block title %}{% if form.instance.id %}Editar{% else %}Novo{% endif %} Teste{% endblock %}
+{% block extra_css %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root {
+        --primary: #007bff;
+        --primary-light: #00c6ff;
+        --gray-light: #f8f9fa;
+        --gray-muted: #6c757d;
+        --shadow-hover: rgba(0, 0, 0, 0.1);
+    }
+
+    .card {
+        border-radius: 15px;
+        box-shadow: 0 10px 20px var(--shadow-hover);
+        border: none;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        color: white;
+        border-radius: 15px 15px 0 0 !important;
+        padding: 20px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        border: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+    }
+
+    .btn-outline-secondary {
+        border: 2px solid var(--primary);
+        color: var(--primary);
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: var(--primary);
+        color: white;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 10px;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #555;
+        margin-bottom: 8px;
+    }
+
+    .form-check-input:checked {
+        background-color: var(--primary);
+        border-color: var(--primary);
+    }
+
+    .progress-container {
+        margin-bottom: 30px;
+    }
+
+    .progress {
+        height: 8px;
+        border-radius: 4px;
+    }
+
+    .icon-container {
+        font-size: 24px;
+        margin-right: 10px;
+        color: var(--primary);
+    }
+
+    .card-body {
+        padding: 30px;
+    }
+
+    .help-text {
+        color: var(--gray-muted);
+        font-size: 0.85rem;
+        margin-top: 5px;
+    }
+
+    .alert-info {
+        background-color: #e7f3ff;
+        border-color: #b8daff;
+        color: #055160;
+    }
+
+    .text-muted a {
+        color: var(--primary);
+    }
+
+    .text-muted a:hover {
+        text-decoration: underline;
+    }
+
+</style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <!-- Barra de progresso -->
+            <div class="progress-container">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Informações do Teste</span>
+                    <span>Finalizar</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar bg-gradient" style="width: 50%; background: linear-gradient(135deg, #007bff, #00c6ff);" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header d-flex align-items-center">
+                    <div class="icon-container">
+                        <i class="fas {% if form.instance.id %}fa-edit{% else %}fa-plus-circle{% endif %}"></i>
+                    </div>
+                    <h2 class="mb-0">{% if form.instance.id %}Editar{% else %}Criar Novo{% endif %} Teste</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-4">
+                            <label for="{{ form.title.id_for_label }}" class="form-label">
+                                <i class="fas fa-heading me-2"></i>Título do Teste
+                            </label>
+                            </br>
+                            {{ form.title }}
+                            <div class="help-text">Escolha um título claro e descritivo para identificar seu teste.</div>
+                            {% if form.title.errors %}
+                                <div class="text-danger mt-2">
+                                    <i class="fas fa-exclamation-circle me-1"></i>{{ form.title.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                <i class="fas fa-align-left me-2"></i>Descrição
+                            </label>
+                            </br>
+                            {{ form.description }}
+                            <div class="help-text">Adicione detalhes importantes sobre o teste e seu objetivo.</div>
+                            {% if form.description.errors %}
+                                <div class="text-danger mt-2">
+                                    <i class="fas fa-exclamation-circle me-1"></i>{{ form.description.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="{{ form.duration_minutes.id_for_label }}" class="form-label">
+                                    <i class="fas fa-clock me-2"></i>Duração do Teste
+                                </label>
+                                <div class="input-group">
+                                    {{ form.duration_minutes }}
+                                    <span class="input-group-text">minutos</span>
+                                </div>
+                                <div class="help-text">Defina quanto tempo os participantes terão para completar o teste.</div>
+                                {% if form.duration_minutes.errors %}
+                                    <div class="text-danger mt-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ form.duration_minutes.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-check form-switch mt-4">
+                                    {{ form.is_active }}
+                                    <label for="{{ form.is_active.id_for_label }}" class="form-check-label">
+                                        <i class="fas {% if form.is_active.value %}fa-toggle-on{% else %}fa-toggle-off{% endif %} me-2"></i>Teste Ativo
+                                    </label>
+                                    <div class="help-text">Ative para tornar o teste disponível imediatamente.</div>
+                                    {% if form.is_active.errors %}
+                                        <div class="text-danger mt-2">
+                                            <i class="fas fa-exclamation-circle me-1"></i>{{ form.is_active.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info d-flex align-items-center" role="alert">
+                            <i class="fas fa-info-circle me-2 fs-4"></i>
+                            <div>
+                                Preencha todos os campos com atenção. Você poderá editar essas informações posteriormente, se necessário.
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-3 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'test_list' %}" class="btn btn-outline-secondary px-4">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary px-5">
+                                <i class="fas fa-save me-2"></i>Salvar Teste
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="text-center text-muted">
+                <small>Precisa de ajuda? <a href="#" class="text-decoration-none">Consulte nosso guia de criação de testes</a></small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Melhora o comportamento do switch de ativação
+        const isActiveCheckbox = document.getElementById('{{ form.is_active.id_for_label }}');
+        const isActiveLabel = isActiveCheckbox.nextElementSibling.querySelector('i');
+
+        isActiveCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                isActiveLabel.classList.remove('fa-toggle-off');
+                isActiveLabel.classList.add('fa-toggle-on');
+            } else {
+                isActiveLabel.classList.remove('fa-toggle-on');
+                isActiveLabel.classList.add('fa-toggle-off');
+            }
+        });
+
+        // Adiciona animação de hover nos cards
+        const card = document.querySelector('.card');
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+            this.style.transition = 'transform 0.3s ease';
+        });
+
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+</script>
+{% endblock %}

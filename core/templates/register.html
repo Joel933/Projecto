@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Registrar Nova Conta{% endblock %}
+
+{% block extra_css %}
+<style>
+  .register-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .form-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #2c3e50;
+  }
+
+  .form-header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-header p {
+    color: #7f8c8d;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #34495e;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: border-color 0.2s;
+  }
+
+  .form-control:focus {
+    border-color: #3498db;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+  }
+
+  .help-text {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    color: #7f8c8d;
+  }
+
+  .error-message {
+    color: #e74c3c;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+
+  .btn-primary {
+    display: block;
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .btn-primary:hover {
+    background-color: #2980b9;
+  }
+
+  .form-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+    color: #7f8c8d;
+  }
+
+  .form-footer a {
+    color: #3498db;
+    text-decoration: none;
+  }
+
+  .form-footer a:hover {
+    text-decoration: underline;
+  }
+
+  .form-section {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-section-title {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+  }
+
+  .required-field::after {
+    content: '*';
+    color: #e74c3c;
+    margin-left: 4px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-container">
+
+  <div class="form-header">
+    <h1>Criar Nova Conta</h1>
+    <p>Preencha o formulário abaixo para se registrar no sistema</p>
+  </div>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+
+    <!-- Informações de Conta -->
+    <div class="form-section">
+      <h3 class="form-section-title">Informações de Acesso</h3>
+
+      <div class="form-group">
+        <label for="{{ form.username.id_for_label }}" class="form-label required-field">Nome de Usuário</label>
+        <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" class="form-control {% if form.username.errors %}is-invalid{% endif %}" required>
+        {% if form.username.errors %}
+          <span class="error-message">{{ form.username.errors }}</span>
+        {% endif %}
+        {% if form.username.help_text %}
+          <small class="help-text">{{ form.username.help_text }}</small>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.email.id_for_label }}" class="form-label required-field">Email</label>
+        <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" class="form-control {% if form.email.errors %}is-invalid{% endif %}" required>
+        {% if form.email.errors %}
+          <span class="error-message">{{ form.email.errors }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.role.id_for_label }}" class="form-label required-field">Tipo de Usuário</label>
+        <select name="{{ form.role.name }}" id="{{ form.role.id_for_label }}" class="form-control {% if form.role.errors %}is-invalid{% endif %}" required>
+          {% for value, text in form.fields.role.choices %}
+            <option value="{{ value }}">{{ text }}</option>
+          {% endfor %}
+        </select>
+        {% if form.role.errors %}
+          <span class="error-message">{{ form.role.errors }}</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Informações Pessoais -->
+    <div class="form-section">
+      <h3 class="form-section-title">Informações Pessoais</h3>
+
+         <div class="form-group">
+    <label for="{{ form.nome_completo.id_for_label }}" class="form-label required-field">Nome Completo</label>
+    <input type="text" name="{{ form.nome_completo.name }}" id="{{ form.nome_completo.id_for_label }}" class="form-control {% if form.nome_completo.errors %}is-invalid{% endif %}" required>
+    {% if form.nome_completo.errors %}
+      <span class="error-message">{{ form.nome_completo.errors }}</span>
+    {% endif %}
+  </div>
+
+  <div class="form-group">
+    <label for="{{ form.bilhete_identidade.id_for_label }}" class="form-label required-field">Bilhete de Identidade</label>
+    <input type="text" name="{{ form.bilhete_identidade.name }}" id="{{ form.bilhete_identidade.id_for_label }}" class="form-control {% if form.bilhete_identidade.errors %}is-invalid{% endif %}" required>
+    {% if form.bilhete_identidade.errors %}
+      <span class="error-message">{{ form.bilhete_identidade.errors }}</span>
+    {% endif %}
+  </div>
+
+      <div class="form-group">
+        <label for="{{ form.idade.id_for_label }}" class="form-label">Idade</label>
+        <input type="number" name="{{ form.idade.name }}" id="{{ form.idade.id_for_label }}" class="form-control {% if form.idade.errors %}is-invalid{% endif %}">
+        {% if form.idade.errors %}
+          <span class="error-message">{{ form.idade.errors }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.genero.id_for_label }}" class="form-label">Gênero</label>
+        <select name="{{ form.genero.name }}" id="{{ form.genero.id_for_label }}" class="form-control {% if form.genero.errors %}is-invalid{% endif %}">
+          {% for value, text in form.fields.genero.choices %}
+            <option value="{{ value }}">{{ text }}</option>
+          {% endfor %}
+        </select>
+        {% if form.genero.errors %}
+          <span class="error-message">{{ form.genero.errors }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.morada.id_for_label }}" class="form-label">Endereço</label>
+        <input type="text" name="{{ form.morada.name }}" id="{{ form.morada.id_for_label }}" class="form-control {% if form.morada.errors %}is-invalid{% endif %}">
+        {% if form.morada.errors %}
+          <span class="error-message">{{ form.morada.errors }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.funcao.id_for_label }}" class="form-label">Função</label>
+        <input type="text" name="{{ form.funcao.name }}" id="{{ form.funcao.id_for_label }}" class="form-control {% if form.funcao.errors %}is-invalid{% endif %}">
+        {% if form.funcao.errors %}
+          <span class="error-message">{{ form.funcao.errors }}</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Senha -->
+    <div class="form-section">
+      <h3 class="form-section-title">Definir Senha</h3>
+
+      <div class="form-group">
+        <label for="{{ form.password1.id_for_label }}" class="form-label required-field">Senha</label>
+        <input type="password" name="{{ form.password1.name }}" id="{{ form.password1.id_for_label }}" class="form-control {% if form.password1.errors %}is-invalid{% endif %}" required>
+        {% if form.password1.errors %}
+          <span class="error-message">{{ form.password1.errors }}</span>
+        {% endif %}
+        {% if form.password1.help_text %}
+          <small class="help-text">{{ form.password1.help_text }}</small>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.password2.id_for_label }}" class="form-label required-field">Confirmar Senha</label>
+        <input type="password" name="{{ form.password2.name }}" id="{{ form.password2.id_for_label }}" class="form-control {% if form.password2.errors %}is-invalid{% endif %}" required>
+        {% if form.password2.errors %}
+          <span class="error-message">{{ form.password2.errors }}</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <button type="submit" class="btn-primary">Criar Conta</button>
+
+    <div class="form-footer">
+      <p>Já tem uma conta? <a href="{% url 'login' %}">Entrar no sistema</a></p>
+    </div>
+  </form>
+</div>
+{% endblock %}

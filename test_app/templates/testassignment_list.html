@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block title %}Meus Testes Atribuídos{% endblock %}
+{% block extra_css %}
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h1>Meus Testes</h1>
+    
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h3>{{ assignments|filter_by_status:'pendente'|length }}</h3>
+                    <p>Pendentes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body text-center">
+                    <h3>{{ assignments|filter_by_status:'em_andamento'|length }}</h3>
+                    <p>Em Andamento</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3>{{ assignments|filter_by_status:'concluido'|length }}</h3>
+                    <p>Concluídos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body text-center">
+                    <h3>{{ assignments|filter_by_status:'expirado'|length }}</h3>
+                    <p>Expirados</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="list-group">
+        {% for assignment in assignments %}
+        <div class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{ assignment.test.title }}</h5>
+                <small>
+                    <span class="badge 
+                        {% if assignment.status == 'pendente' %}bg-primary
+                        {% elif assignment.status == 'em_andamento' %}bg-warning
+                        {% elif assignment.status == 'concluido' %}bg-success
+                        {% else %}bg-danger{% endif %}">
+                        {{ assignment.get_status_display }}
+                    </span>
+                </small>
+            </div>
+            <p class="mb-1">{{ assignment.test.description|truncatechars:150 }}</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">
+                    Atribuído em: {{ assignment.assigned_at|date:"d/m/Y" }}
+                    {% if assignment.due_date %}
+                    | Prazo: {{ assignment.due_date|date:"d/m/Y H:i" }}
+                    {% endif %}
+                </small>
+                <div>
+                    {% if assignment.status == 'pendente' or assignment.status == 'em_andamento' %}
+                        <a href="{% url 'take_test' assignment_id=assignment.id %}" class="btn btn-sm btn-primary">
+                            {% if assignment.status == 'em_andamento' %}Continuar{% else %}Iniciar{% endif %} Teste
+                        </a>
+                    {% elif assignment.status == 'concluido' %}
+                        <a href="{% url 'test_result' result_id=assignment.result.id %}" class="btn btn-sm btn-info">Ver Resultado</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="alert alert-info">
+            <p>Você não tem nenhum teste atribuído no momento.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

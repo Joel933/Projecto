@@ -1,0 +1,350 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ test.title }}{% endblock %}
+
+{% block extra_css %}
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	<style>
+		.card-header h5 {
+			margin-bottom: 0;
+			font-weight: 600;
+		}
+		.badge {
+			font-size: 0.9rem;
+			padding: 0.5em;
+		}
+		.accordion-button::after {
+			transform: scale(1.2);
+		}
+		.table th, .table td {
+			vertical-align: middle;
+		}
+		/* Melhorar acessibilidade */
+		.badge.bg-warning.text-dark {
+			font-weight: 600;
+		}
+		/* Hover em botões */
+		.btn-action:hover {
+			transform: translateY(-2px);
+			transition: transform 0.2s;
+		}
+		/* Responsividade para mobile */
+		@media (max-width: 768px) {
+			.btn-group {
+				display: flex;
+				flex-direction: column;
+				gap: 0.5rem;
+			}
+			.btn-group .btn {
+				width: 100%;
+				margin-left: 0 !important;
+			}
+		}
+	</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+	<div class="col-md-8">
+		<h1 class="display-5">{{ test.title }}</h1>
+	</div>
+	{% if user.role == 'rh' %}
+	<div class="col-md-4 mt-3 mt-md-0 text-md-end">
+		<div class="btn-group d-inline-flex flex-wrap justify-content-end">
+			<a href="{% url 'test_update' test.id %}" class="btn btn-outline-primary btn-action" title="Editar este teste">
+				<i class="bi bi-pencil-square" aria-hidden="true"></i> Editar
+			</a>
+			<a href="{% url 'test_delete' test.id %}" class="btn btn-outline-danger btn-action"
+				onclick="return confirm('Tem certeza que deseja excluir este teste?')" title="Excluir este teste">
+				<i class="bi bi-trash" aria-hidden="true"></i> Excluir
+			</a>
+			<a href="{% url 'assign_test_by_type' test.id %}" class="btn btn-success btn-action" title="Atribuir este teste a usuários">
+				<i class="bi bi-person-plus" aria-hidden="true"></i> Atribuir Teste
+			</a>
+		</div>
+	</div>
+	{% endif %}
+</div>
+
+<div class="card shadow-sm mb-4">
+	<div class="card-body">
+		<h5><i class="bi bi-info-circle-fill text-primary" aria-hidden="true"></i> Detalhes do Teste</h5>
+		<ul class="list-unstyled mt-3">
+			<li class="mb-2"><strong>Descrição:</strong> {{ test.description }}</li>
+			<li class="mb-2"><strong>Duração:</strong> {{ test.duration_minutes }} minutos</li>
+			<li class="mb-2"><strong>Criado por:</strong> {{ test.created_by.nome_completo|default:test.created_by.username }}</li>
+			<li class="mb-2"><strong>Data de criação:</strong> {{ test.created_at|date:"d/m/Y" }}</li>
+			<li><strong>Status:</strong>
+				{% if test.is_active %}
+					<span class="badge bg-success" role="status">Ativo</span>
+				{% else %}
+					<span class="badge bg-danger" role="status">Inativo</span>
+				{% endif %}
+			</li>
+		</ul>
+	</div>
+</div>
+
+{% if user.role == 'rh' %}
+	<!-- Seção de Questões -->
+	<div class="card shadow-sm mb-4">
+		<div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+			<h5 class="mb-2 mb-md-0"><i class="bi bi-question-circle-fill text-secondary" aria-hidden="true"></i> Questões ({{ test.questions.count }})</h5>
+			<a href="{% url 'question_add' test.id %}" class="btn btn-sm btn-primary">
+				<i class="bi bi-plus-circle" aria-hidden="true"></i> Adicionar Questão
+			</a>
+		</div>
+		<div class="card-body">
+			{% if test.questions.exists %}
+				<div class="accordion" id="questionAccordion">
+					{% for question in test.questions.all %}
+						<div class="accordion-item">
+							<h2 class="accordion-header" id="heading{{ question.id }}">
+								<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+									data-bs-target="#collapse{{ question.id }}" aria-expanded="false"
+									aria-controls="collapse{{ question.id }}">
+									<span class="fw-bold me-2">{{ forloop.counter }}.</span>
+									{{ question.text|truncatewords:10 }}
+									<span class="text-muted ms-2">({{ question.points }} pts)</span>
+								</button>
+							</h2>
+							<div id="collapse{{ question.id }}" class="accordion-collapse collapse" data-bs-parent="#questionAccordion">
+								<div class="accordion-body">
+									<p><strong>Texto:</strong> {{ question.text }}</p>
+									<p><strong>Pontuação:</strong> {{ question.points }}</p>
+									<p><strong>Alternativa correta:</strong> {{ question.get_correct_option_display }}</p>
+
+									<h6 class="mt-3">Alternativas:</h6>
+									<ul class="list-group">
+										{% for option in question.options.all %}
+											<li class="list-group-item {% if option.label == question.correct_option %}list-group-item-success{% endif %}">
+												<strong>{{ option.label }}.</strong> {{ option.text }}
+												{% if option.label == question.correct_option %}
+													<span class="badge bg-success ms-2" role="status">Correta</span>
+												{% endif %}
+											</li>
+										{% endfor %}
+									</ul>
+
+									<div class="mt-3 d-flex gap-2 flex-wrap">
+										<a href="{% url 'question_update' question.id %}" class="btn btn-sm btn-outline-primary">
+											<i class="bi bi-pencil" aria-hidden="true"></i> Editar
+										</a>
+										<a href="{% url 'question_delete' question.id %}" class="btn btn-sm btn-outline-danger"
+											onclick="return confirm('Tem certeza que deseja excluir esta questão?')">
+											<i class="bi bi-trash" aria-hidden="true"></i> Excluir
+										</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+			{% else %}
+				<p class="text-muted text-center py-3">
+					<i class="bi bi-exclamation-circle fs-4 d-block mb-2" aria-hidden="true"></i>
+					Nenhuma questão adicionada. Utilize o botão "Adicionar Questão" para começar.
+				</p>
+			{% endif %}
+		</div>
+	</div>
+
+	<!-- Seção de Atribuições -->
+	<div class="card shadow-sm mb-4">
+		<div class="card-header">
+			<h5><i class="bi bi-people-fill text-success" aria-hidden="true"></i> Usuários Atribuídos ({{ test.assignments.count }})</h5>
+		</div>
+		<div class="card-body">
+			{% if test.assignments.exists %}
+				<div class="table-responsive">
+					<table class="table table-bordered align-middle">
+						<thead class="table-light">
+							<tr>
+								<th>Usuário</th>
+								<th>Tipo</th>
+								<th>Atribuído em</th>
+								<th>Prazo</th>
+								<th>Status</th>
+								<th>Resultado</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for assignment in test.assignments.all %}
+								<tr>
+									<td>{{ assignment.user.nome_completo|default:assignment.user.username }}</td>
+									<td>{{ assignment.user.get_role_display }}</td>
+									<td>{{ assignment.assigned_at|date:"d/m/Y H:i" }}</td>
+									<td>
+										{% if assignment.due_date %}
+											<span {% if assignment.status != 'expirado' and assignment.due_date|date:'U' < now|date:'U' %}class="text-danger fw-bold"{% endif %}>
+												{{ assignment.due_date|date:"d/m/Y H:i" }}
+											</span>
+										{% else %}
+											<span class="text-muted">Sem prazo</span>
+										{% endif %}
+									</td>
+									<td>
+										{% if assignment.status == 'pendente' %}
+											<span class="badge bg-warning text-dark" role="status">Pendente</span>
+										{% elif assignment.status == 'em_andamento' %}
+											<span class="badge bg-info text-dark" role="status">Em Andamento</span>
+										{% elif assignment.status == 'concluido' %}
+											<span class="badge bg-success" role="status">Concluído</span>
+										{% elif assignment.status == 'expirado' %}
+											<span class="badge bg-danger" role="status">Expirado</span>
+										{% endif %}
+									</td>
+									<td>
+										{% if assignment.status == 'concluido' and assignment.result %}
+											<a href="{% url 'test_result' assignment.result.id %}" class="btn btn-sm btn-outline-info">
+												<i class="bi bi-eye" aria-hidden="true"></i> Ver Resultado
+											</a>
+										{% else %}
+											<span class="text-muted">Sem resultado</span>
+										{% endif %}
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			{% else %}
+				<p class="text-muted text-center py-3">
+					<i class="bi bi-person-x fs-4 d-block mb-2" aria-hidden="true"></i>
+					Nenhum usuário foi atribuído ainda. Use o botão "Atribuir Teste" acima para começar.
+				</p>
+			{% endif %}
+		</div>
+	</div>
+{% else %}
+	<!-- Seção do Candidato -->
+	{% if assignment %}
+		<div class="card shadow-sm mb-4">
+			<div class="card-header">
+				<h5><i class="bi bi-person-lines-fill text-primary" aria-hidden="true"></i> Seu Teste</h5>
+			</div>
+			<div class="card-body">
+				<ul class="list-unstyled">
+					<li class="mb-2"><strong>Status:</strong>
+						{% if assignment.status == 'pendente' %}
+							<span class="badge bg-warning text-dark" role="status">Pendente</span>
+						{% elif assignment.status == 'em_andamento' %}
+							<span class="badge bg-info text-dark" role="status">Em Andamento</span>
+						{% elif assignment.status == 'concluido' %}
+							<span class="badge bg-success" role="status">Concluído</span>
+						{% elif assignment.status == 'expirado' %}
+							<span class="badge bg-danger" role="status">Expirado</span>
+						{% endif %}
+					</li>
+					<li class="mb-2"><strong>Atribuído em:</strong> {{ assignment.assigned_at|date:"d/m/Y H:i" }}</li>
+					{% if assignment.due_date %}
+						<li class="mb-2">
+							<strong>Prazo:</strong>
+							<span {% if assignment.status != 'expirado' and assignment.status != 'concluido' and assignment.due_date|date:'U' < now|date:'U' %}class="text-danger fw-bold"{% endif %}>
+								{{ assignment.due_date|date:"d/m/Y H:i" }}
+							</span>
+
+							{% if assignment.status != 'expirado' and assignment.status != 'concluido' and assignment.due_date %}
+								{% load tz %}
+								<div class="text-small text-muted mt-1">
+									{% if assignment.due_date|date:'U'|add:'-86400' < now|date:'U' %}
+										<i class="bi bi-exclamation-triangle-fill text-warning" aria-hidden="true"></i>
+										{% if assignment.due_date|date:'U' < now|date:'U' %}
+											<strong class="text-danger">Prazo expirado!</strong>
+										{% else %}
+											<strong>Atenção:</strong> Menos de 24h para o prazo final.
+										{% endif %}
+									{% endif %}
+								</div>
+							{% endif %}
+						</li>
+					{% endif %}
+					{% if result %}
+						<li class="mb-2"><strong>Iniciado em:</strong> {{ result.started_at|date:"d/m/Y H:i" }}</li>
+						{% if result.completed_at %}
+							<li class="mb-2"><strong>Concluído em:</strong> {{ result.completed_at|date:"d/m/Y H:i" }}</li>
+							<li class="mb-2">
+								<strong>Pontuação:</strong>
+								<div class="progress mt-2" style="height: 20px;" title="{{ result.score|floatformat:2 }}% de acertos">
+									<div class="progress-bar
+										{% if result.score >= 70 %}bg-success
+										{% elif result.score >= 50 %}bg-warning
+										{% else %}bg-danger{% endif %}"
+										role="progressbar" style="width: {{ result.score }}%"
+										aria-valuenow="{{ result.score|floatformat:0 }}" aria-valuemin="0" aria-valuemax="100">
+										{{ result.score|floatformat:2 }}%
+									</div>
+								</div>
+								<small class="text-muted">{{ result.score|floatformat:2 }} de {{ result.max_score }} pontos possíveis</small>
+							</li>
+						{% endif %}
+					{% endif %}
+				</ul>
+
+				<div class="mt-4">
+					{% if assignment.status == 'concluido' %}
+						<a href="{% url 'test_result' result.id %}" class="btn btn-outline-success">
+							<i class="bi bi-clipboard-check" aria-hidden="true"></i> Ver Resultado
+						</a>
+					{% elif assignment.status == 'expirado' %}
+						<button class="btn btn-outline-secondary" disabled>
+							<i class="bi bi-clock-history" aria-hidden="true"></i> Prazo Expirado
+						</button>
+					{% else %}
+						<a href="{% url 'take_test' assignment.id %}" class="btn btn-primary btn-lg">
+							<i class="bi bi-{% if assignment.status == 'pendente' %}play-fill{% else %}arrow-right-circle-fill{% endif %}" aria-hidden="true"></i>
+							{% if assignment.status == 'pendente' %}Iniciar Teste{% else %}Continuar Teste{% endif %}
+						</a>
+
+						{% if assignment.status == 'em_andamento' %}
+							<div class="alert alert-info mt-3">
+								<i class="bi bi-info-circle-fill" aria-hidden="true"></i> Seu teste está em andamento.
+								Ao continuar, você retornará de onde parou.
+							</div>
+						{% else %}
+							<div class="alert alert-warning mt-3">
+								<i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i> Atenção: Uma vez iniciado,
+								o contador de tempo será ativado e não poderá ser pausado.
+							</div>
+						{% endif %}
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	{% else %}
+		<div class="alert alert-info shadow-sm">
+			<i class="bi bi-info-circle-fill me-2" aria-hidden="true"></i>
+			Você ainda não foi atribuído a este teste.
+		</div>
+	{% endif %}
+{% endif %}
+
+<!-- Script para melhorar a experiência do usuário -->
+{% block extra_js %}
+<script>
+	// Adiciona confirmação para ações destrutivas
+	document.addEventListener('DOMContentLoaded', function() {
+		// Adiciona loading spinner aos botões de ação
+		const actionButtons = document.querySelectorAll('.btn-primary:not([disabled])');
+		actionButtons.forEach(button => {
+			button.addEventListener('click', function() {
+				// Não aplicar loading em botões de toggle ou accordion
+				if (this.getAttribute('data-bs-toggle')) return;
+
+				const originalContent = this.innerHTML;
+				this.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Processando...';
+				this.disabled = true;
+
+				// Restaura após 5s caso a página não recarregue (para prevenção)
+				setTimeout(() => {
+					if (this.disabled) {
+						this.innerHTML = originalContent;
+						this.disabled = false;
+					}
+				}, 5000);
+			});
+		});
+	});
+</script>
+{% endblock %}
+{% endblock %}
